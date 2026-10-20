@@ -1,0 +1,35 @@
+# ==============================================================================
+# Domino Data Lab 6.3 on GCP (GKE) — External NGINX Ingress NetworkPolicies
+# Source: https://docs.domino.ai/6.3/admin/installation/manage-deployments/gcp/deploy
+# ==============================================================================
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: external-nginx
+  namespace: domino-platform
+spec:
+  podSelector: {}
+  ingress:
+    - from:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: nginx-ingress
+  policyTypes:
+    - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: external-nginx
+  namespace: domino-compute
+spec:
+  podSelector: {}
+  ingress:
+    - from:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: nginx-ingress
+  policyTypes:
+    - Ingress

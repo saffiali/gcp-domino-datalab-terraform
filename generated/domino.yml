@@ -1,0 +1,164 @@
+# ==============================================================================
+# Domino Data Lab 6.3.0 on Google Cloud Platform (GKE)
+# Generated Installer Configuration (Schema 1.16)
+# Target Agent Version: 6.3.0.catalog-1df6e73
+# ==============================================================================
+schema: '1.16'
+name: domino-gcp
+hostname: domino.gke-demos.example.com
+
+namespace:
+  platform: domino-platform
+  compute: domino-compute
+  system: domino-system
+
+storage_class:
+  block:
+    create: true
+    default: 'true'
+    name: dominodisk
+    type: gce
+    access_modes:
+      - ReadWriteOnce
+    volume_binding_mode: WaitForFirstConsumer
+  shared:
+    create: true
+    name: dominoshared
+    type: nfs
+    access_modes:
+      - ReadWriteMany
+    nfs:
+      mount_path: /share1
+      server: 10.42.0.10
+
+blob_storage:
+  default:
+    type: shared
+  projects:
+    type: shared
+  logs:
+    type: shared
+  backups:
+    type: gcs
+    gcs:
+      region: ''
+      bucket_name: dominodatalab-your-gcp-project-id-domino-gcp
+      service_account_name: domino-gcp-platform
+      project_name: your-gcp-project-id
+
+autoscaler:
+  enabled: true
+  cloud_provider: gcp
+  gcp: {}
+
+external_dns:
+  enabled: false
+
+email_notifications:
+  enabled: false
+  server: ''
+  port: 587
+  enable_ssl: false
+  from_address: ''
+  authentication:
+    username: ''
+    password: ''
+
+monitoring:
+  prometheus_metrics: true
+  node_exporter: true
+  kube_state_metrics: true
+  istio:
+    enabled: false
+    install: false
+    cni: false
+  newrelic:
+    apm: false
+    infrastructure: false
+    license_key: ''
+
+helm:
+  version: '3'
+  host: quay.io
+  namespace: domino
+  username: '<QUAY_USERNAME>'
+  password: '<QUAY_PASSWORD>'
+  cache_path: /root/.ParallelDominoHelm
+  image_registries:
+    - server: quay.io
+      username: '<QUAY_USERNAME>'
+      password: '<QUAY_PASSWORD>'
+    - server: mirrors.domino.tech
+      username: '<QUAY_USERNAME>'
+      password: '<QUAY_PASSWORD>'
+
+image_caching:
+  enabled: true
+
+certificate_management:
+  install: true
+  SelfSigned: true
+  Acme: false
+
+elasticsearch:
+  enable_sysctl: true
+
+image_building:
+  verbose: false
+  rootless: false
+  cache_storage_size: 70G
+  cache_storage_retention: 50G
+  cloud_registry_auth:
+    gcp:
+      service_account: domino-gcp-gcr@your-gcp-project-id.iam.gserviceaccount.com
+
+external_docker_registry:
+  url: us-central1-docker.pkg.dev/your-gcp-project-id/domino-gcp-domino
+  username: _json_key
+  password: '<BASE64_ENCODED_SERVICE_ACCOUNT_KEY_OR_USE_GCR_CREDENTIAL_REFRESHER>'
+
+internal_docker_registry:
+  s3_override: null
+  gcs_override:
+    bucket: dominodatalab-your-gcp-project-id-domino-gcp
+    service_account_name: domino-gcp-platform
+    project_name: your-gcp-project-id
+  azure_blobs_override: null
+
+telemetry:
+  mixpanel:
+    enabled: true
+    redacted_mode: false
+  zendesk:
+    enabled: false
+    token: ''
+
+gpu:
+  enabled: true
+
+ingress_controller:
+  class_name: nginx
+  create: true
+
+release_overrides:
+  nginx-ingress:
+    chart_values:
+      controller:
+        kind: Deployment
+        hostNetwork: false
+        config:
+          ssl-cert: domino-platform/my-cert
+          use-forwarded-headers: "true"
+          enable-underscores-in-headers: "true"
+          proxy-connect-timeout: "30"
+          proxy-read-timeout: "3600"
+          proxy-send-timeout: "3600"
+        service:
+          enabled: true
+          type: LoadBalancer
+          loadBalancerSourceRanges:
+            - 0.0.0.0/0
+          annotations: {}
+          targetPorts:
+            http: http
+            https: https

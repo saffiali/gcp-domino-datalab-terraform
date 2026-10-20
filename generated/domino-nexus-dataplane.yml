@@ -1,0 +1,72 @@
+# ==============================================================================
+# Domino Nexus Hybrid Architecture — Remote GKE Data Plane Configuration
+# Generated with preset: ddlctl create config --preset data-plane
+# ==============================================================================
+schema: '1.16'
+name: domino-gcp-dataplane
+hostname: domino.gke-demos.example.com
+control_plane: false
+
+data_plane:
+  type: remote
+  name: domino-gcp-gke-dataplane
+  api_token: '<DOMINO_NEXUS_DATA_PLANE_API_TOKEN>'
+
+namespace:
+  compute: domino-compute
+
+storage_classes:
+  block:
+    create: true
+    default: true
+    name: dominodisk
+    type: gce
+    access_modes:
+      - ReadWriteOnce
+    volume_binding_mode: WaitForFirstConsumer
+  shared:
+    create: true
+    name: dominoshared
+    type: nfs
+    access_modes:
+      - ReadWriteMany
+    nfs:
+      server: 10.42.0.10
+      mount_path: /share1
+
+enable_volume_operator: true
+enable_filetask_operator: true
+
+autoscaler:
+  enabled: true
+  cloud_provider: gcp
+
+gpu:
+  enabled: true
+
+helm:
+  version: '3'
+  host: quay.io
+  namespace: domino
+  username: '<QUAY_USERNAME>'
+  password: '<QUAY_PASSWORD>'
+  image_registries:
+    - server: quay.io
+      username: '<QUAY_USERNAME>'
+      password: '<QUAY_PASSWORD>'
+
+release_overrides:
+  data-plane-agent:
+    chart_values:
+      config:
+        rabbitmq:
+          host: '<CONTROL_PLANE_RABBITMQ_LB_HOSTNAME>'
+          port: 5672
+        vault:
+          address: 'https://<CONTROL_PLANE_VAULT_LB_HOSTNAME>:8200'
+  fluentd:
+    chart_values:
+      config:
+        rabbitmq:
+          host: '<CONTROL_PLANE_RABBITMQ_LB_HOSTNAME>'
+          port: 5672

@@ -1,0 +1,29 @@
+# Terraform local state and provider binaries
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+!*.tfvars.example
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+terraform.plan
+
+# Generated credentials, certificates, and local kubeconfig
+generated/*.key
+generated/*.crt
+generated/*.pem
+generated/kubeconfig*
+generated/*.backup-*
+generated/pdb_backups/*
+generated/terraform-outputs.json
+
+# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/

@@ -1,0 +1,91 @@
+# ==============================================================================
+# Domino Data Lab 6.3 on GCP (GKE) — Example terraform.tfvars
+# Target Project: your-gcp-project-id
+# ==============================================================================
+
+project                = "your-gcp-project-id"
+deploy_id              = "domino-gcp"
+location               = "us-central1"
+default_node_locations = ["us-central1-a", "us-central1-b"]
+domino_hostname        = "domino.gke-demos.example.com"
+domino_version         = "6.3.0"
+fleetcommand_agent_tag = "6.3.0.catalog-1df6e73"
+ddlctl_version         = "0.6.4"
+platform_sizing_tier   = "standard" # "standard" (300 concurrent execs) or "large" (600 concurrent execs)
+
+namespaces = {
+  platform = "domino-platform"
+  compute  = "domino-compute"
+  system   = "domino-system"
+}
+
+network_cidr           = "10.138.0.0/20"
+master_ipv4_cidr_block = "172.16.1.0/28"
+
+gke = {
+  k8s_version              = "1.35."
+  release_channel          = "STABLE"
+  advanced_datapath        = true
+  network_policies         = false
+  vertical_pod_autoscaling = true
+  public_access = {
+    enabled = true
+    cidrs   = ["0.0.0.0/0"]
+  }
+}
+
+# Shared Storage (dominoshared ReadWriteMany):
+# Choose ONE of filestore (1TB+ Managed NFS), nfs_instance (100GB GCE NFS VM), or gcnv (NetApp Volumes)
+storage = {
+  filestore = {
+    enabled  = true
+    capacity = 1024
+    tier     = "STANDARD"
+  }
+  nfs_instance = {
+    enabled       = false
+    capacity      = 100
+    instance_type = "n2-standard-2"
+    disk_type     = "pd-standard"
+  }
+  gcs = {
+    force_destroy_on_deletion = true
+  }
+  gcnv = {
+    enabled = false
+  }
+}
+
+node_pools = {
+  platform = {
+    min_count     = 1
+    max_count     = 5
+    initial_count = 2
+    max_pods      = 60
+    preemptible   = false
+    disk_size_gb  = 128
+    image_type    = "COS_CONTAINERD"
+    instance_type = "n2-highmem-8"
+  }
+  compute = {
+    min_count     = 0
+    max_count     = 10
+    initial_count = 1
+    max_pods      = 30
+    preemptible   = false
+    disk_size_gb  = 400
+    image_type    = "COS_CONTAINERD"
+    instance_type = "n2-highmem-8"
+  }
+  gpu = {
+    min_count       = 0
+    max_count       = 2
+    initial_count   = 0
+    max_pods        = 30
+    preemptible     = false
+    disk_size_gb    = 400
+    image_type      = "COS_CONTAINERD"
+    instance_type   = "n1-highmem-8"
+    gpu_accelerator = "nvidia-tesla-t4"
+  }
+}

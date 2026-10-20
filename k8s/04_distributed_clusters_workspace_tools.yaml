@@ -1,0 +1,52 @@
+# ==============================================================================
+# Domino Data Lab 6.3 — Distributed Compute Clusters (Ray, Dask, MPI) Reference
+# Sources:
+#   - Ray:  https://docs.domino.ai/6.3/platform-capabilities/features/compute-clusters-hpc/ray/configure-prerequisites
+#   - Dask: https://docs.domino.ai/6.3/platform-capabilities/features/compute-clusters-hpc/dask/configure-prerequisites
+#   - MPI:  https://docs.domino.ai/6.3/platform-capabilities/features/compute-clusters-hpc/mpi/configure-mpi-prerequisites
+# ==============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: domino-distributed-compute-environments-reference
+  namespace: domino-platform
+  labels:
+    app.kubernetes.io/part-of: domino-datalab
+data:
+  ray_environments.yaml: |
+    # Domino 6.3 Default Ray 2.55.1 Environments
+    cpu_cluster_image: "quay.io/domino/ray-cluster-environment:ray2.55.1-py3.12-domino6.3"
+    gpu_cluster_image: "quay.io/domino/ray-cluster-gpu-environment:ray2.55.1-py3.12-domino6.3"
+    workspace_image: "quay.io/domino/domino-ray-environment:ubuntu24-py3.12-r4.5-ray2.55.1-domino6.3"
+    pluggable_workspace_tools:
+      ray-dashboard:
+        title: "Ray"
+        iconUrl: "/assets/images/workspace-logos/ray.svg"
+        start: [ "/bin/bash", "-c", "echo 'Ray Dashboard Proxy'" ]
+        httpProxy:
+          port: 8265
+          host: "{{ownerUsername}}-{{projectName}}-{{sessionPathComponent}}-ray-head"
+          requireSubdomain: false
+
+  dask_environments.yaml: |
+    # Domino 6.3 Dask Cluster Environment
+    cpu_cluster_image: "quay.io/domino/dask-cluster-environment:ubuntu24-py3.12-domino6.3"
+    pluggable_workspace_tools:
+      dask-webui:
+        title: "Dask"
+        iconUrl: "/assets/images/workspace-logos/dask.svg"
+        start: [ "/bin/bash", "-c", "echo 'Dask WebUI Proxy'" ]
+        httpProxy:
+          port: 8787
+          host: "{{ownerUsername}}-{{projectName}}-{{sessionPathComponent}}-dask-scheduler"
+          requireSubdomain: false
+
+  mpi_environments.yaml: |
+    # Domino 6.3 MPI Cluster Environment
+    # Central Configuration Prerequisite:
+    #   Namespace: common
+    #   Key: com.cerebro.domino.computegrid.kubernetes.mpi.ShortLived.MpiClustersEnabled
+    #   Value: true
+    mpi_cluster_image: "quay.io/domino/mpi-cluster-environment:ubuntu24-py3.10-mpi-4.1.4-domino6.3"
+    required_openmpi_version: "4.1.2+"
+    required_domino_uid: 12574

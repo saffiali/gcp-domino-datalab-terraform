@@ -1,0 +1,40 @@
+# ==============================================================================
+# Domino Data Lab 6.3 on GCP (GKE) — Namespaces & Reference StorageClasses
+# ==============================================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: domino-platform
+  labels:
+    app.kubernetes.io/part-of: domino-datalab
+    dominodatalab.com/tier: platform
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: domino-compute
+  labels:
+    app.kubernetes.io/part-of: domino-datalab
+    dominodatalab.com/tier: compute
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: domino-system
+  labels:
+    app.kubernetes.io/part-of: domino-datalab
+    dominodatalab.com/tier: system
+---
+# Reference Block StorageClass (dominodisk) — ReadWriteOnce GCE Persistent Disk
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: dominodisk
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: pd.csi.storage.gke.io
+parameters:
+  type: pd-balanced
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
+reclaimPolicy: Delete

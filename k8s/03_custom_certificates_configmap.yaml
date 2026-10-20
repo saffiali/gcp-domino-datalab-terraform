@@ -1,0 +1,20 @@
+# ==============================================================================
+# Domino Data Lab 6.3 — Custom Certificates Bundle ConfigMap
+# Source: https://docs.domino.ai/6.3/admin/security-and-compliance/custom-certificates/domino-custom-cert-configmap
+# Domino checks for `domino-custom-certificates` in the `default` namespace with
+# key `bundle` (concatenated PEM certificates) and mounts it into user executions
+# at `/etc/ssl/certs/domino-custom`.
+# ==============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: domino-custom-certificates
+  namespace: default
+  labels:
+    app.kubernetes.io/part-of: domino-datalab
+data:
+  bundle: |
+    # Replace or append your private Root and Intermediate CA certificates in PEM format:
+    # -----BEGIN CERTIFICATE-----
+    # <BASE64_ENCODED_CUSTOM_CA_CERTIFICATE>
+    # -----END CERTIFICATE-----
